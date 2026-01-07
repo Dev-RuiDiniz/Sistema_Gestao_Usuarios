@@ -1,28 +1,17 @@
-// src/lib/prisma.ts
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
-import 'dotenv/config'; // Garante o carregamento das variáveis aqui
+import 'dotenv/config'; // DEVE ser a primeira linha
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-// Pegamos a URL e validamos se ela existe
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error('DATABASE_URL is not defined in .env file');
+// Debug para você ter certeza no terminal
+if (!process.env.DATABASE_URL) {
+  console.error("❌ ERRO: DATABASE_URL não encontrada no arquivo .env");
 }
 
-// 1. Criamos o pool de conexão
-const pool = new pg.Pool({ connectionString });
+const pool = new pg.Pool({ 
+  connectionString: process.env.DATABASE_URL 
+})
 
-// 2. Criamos o adaptador
-const adapter = new PrismaPg(pool);
+const adapter = new PrismaPg(pool)
 
-// 3. Instanciamos o PrismaClient
-export const prisma = globalForPrisma.prisma || new PrismaClient({
-  adapter,
-  log: process.env.NODE_ENV === 'dev' ? ['query', 'error', 'warn'] : ['error'],
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export const prisma = new PrismaClient({ adapter })

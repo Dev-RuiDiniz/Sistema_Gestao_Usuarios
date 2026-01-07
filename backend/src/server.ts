@@ -1,8 +1,6 @@
 // src/server.ts
 import { app } from './app.js';
 
-const PORT = process.env.PORT || 3333;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+app.listen(3333, () => {
+  console.log('🚀 HTTP Server Running on http://localhost:3333');
 });

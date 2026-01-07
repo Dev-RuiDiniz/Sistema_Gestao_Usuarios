@@ -5,6 +5,7 @@ import { RegisterController } from './controllers/register-controller.js';
 const routes = Router();
 const registerController = new RegisterController();
 
+// Nossa primeira rota oficial
 routes.post('/users', registerController.handle);
 
 export { routes };

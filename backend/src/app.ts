@@ -1,6 +1,5 @@
 // src/app.ts
 import express, { type Request, type Response, type NextFunction } from 'express';
-import 'express-async-errors'; 
 import cors from 'cors';
 import { AppError } from './errors/AppError.js';
 import { routes } from './routes.js';
