@@ -1,4 +1,5 @@
 // src/services/register.ts
+import { AppError } from '../errors/AppError.js';
 import { type UsersRepository } from '../repositories/users-repository.js';
 import { generateHash } from '../utils/hash-password.js';
 import { type User } from '@prisma/client';
@@ -27,7 +28,7 @@ export class RegisterService {
     const userWithSameEmail = await this.usersRepository.findByEmail(email);
 
     if (userWithSameEmail) {
-      throw new Error('User with same email already exists.');
+    throw new AppError('User with same email already exists.', 409); // 409 Conflict
     }
 
     // 2. Criptografa a senha usando nosso utilitário

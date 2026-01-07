@@ -1,8 +1,8 @@
 // src/app.ts
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
+import 'express-async-errors'; // Importante para capturar erros em rotas assíncronas
 import cors from 'cors';
-// Importaremos nossas rotas futuramente aqui
-// import { routes } from './routes';
+import { AppError } from './errors/AppError.js';
 
 const app = express();
 
@@ -14,6 +14,24 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// app.use(routes);
+// Middleware Global de Erros (Deve ser o ÚLTIMO app.use)
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  // Se o erro for uma instância da nossa classe, é um erro "conhecido"
+  if (err instanceof AppError) {
+    res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+    return;
+  }
+
+  // Erro inesperado (Bug, queda de banco, etc)
+  console.error(err); // Logamos para o desenvolvedor ver no terminal
+
+  res.status(500).json({
+    status: 'error',
+    message: 'Internal server error',
+  });
+});
 
 export { app };
