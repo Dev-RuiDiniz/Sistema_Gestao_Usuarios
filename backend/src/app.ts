@@ -3,9 +3,11 @@ import express, { type Request, type Response, type NextFunction } from 'express
 import 'express-async-errors'; // Importante para capturar erros em rotas assíncronas
 import cors from 'cors';
 import { AppError } from './errors/AppError.js';
+import { routes } from './routes.js';
 
 const app = express();
 
+app.use(routes);
 app.use(cors());
 app.use(express.json());
 
