@@ -1,0 +1,7 @@
+src/
+  ├── controllers/    # Lógica de entrada/saída (HTTP)
+  ├── services/       # Regras de negócio
+  ├── repositories/   # Comunicação com o banco (Prisma)
+  ├── entities/       # Modelos/Interfaces de domínio
+  ├── config/         # Configurações globais (Env, DB)
+  └── server.ts       # Ponto de entrada da aplicação
