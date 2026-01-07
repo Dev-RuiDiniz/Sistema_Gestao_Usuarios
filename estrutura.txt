@@ -1,7 +1,26 @@
-src/
-  ├── controllers/    # Lógica de entrada/saída (HTTP)
-  ├── services/       # Regras de negócio
-  ├── repositories/   # Comunicação com o banco (Prisma)
-  ├── entities/       # Modelos/Interfaces de domínio
-  ├── config/         # Configurações globais (Env, DB)
-  └── server.ts       # Ponto de entrada da aplicação
+SISTEMA_GESTAO_USUARIOS/
+│
+└── backend/
+    ├── node_modules/          # Dependências instaladas (gerado pelo npm)
+    ├── prisma/
+    │   ├── migrations/        # Histórico de alterações do banco de dados
+    │   └── schema.prisma      # Definição das tabelas e conexão do banco
+    ├── src/
+    │   ├── config/            # Configurações de variáveis e ambiente
+    │   ├── controllers/       # Lógica de recebimento de requisições (HTTP)
+    │   ├── entities/          # Modelos de dados/classes da aplicação
+    │   ├── lib/
+    │   │   └── prisma.ts      # Instância única do Prisma Client
+    │   ├── repositories/      # Camada de acesso a dados (abstração do banco)
+    │   ├── services/          # Regras de negócio da aplicação
+    │   ├── app.ts             # Configuração do Express (middlewares e rotas)
+    │   └── server.ts          # Inicialização do servidor (ponto de entrada)
+    ├── .env                   # Variáveis sensíveis (DATABASE_URL, senhas)
+    ├── .gitignore             # Arquivos ignorados pelo Git
+    ├── package-lock.json      # Versões exatas das dependências
+    ├── package.json           # Scripts e manifesto do projeto (ESM)
+    ├── prisma.config.ts       # Configuração programática do Prisma
+    ├── tsconfig.json          # Configuração do TypeScript (NodeNext)
+    ├── docker-compose.yml     # Orquestração do PostgreSQL (Docker)
+    ├── estrutura.txt          # Este guia da estrutura do projeto
+    └── README.md              # Documentação principal do projeto
