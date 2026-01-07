@@ -1,13 +1,14 @@
 // prisma.config.ts
 import { defineConfig } from '@prisma/config';
-import * as dotenv from 'dotenv';
+import 'dotenv/config'; // Forma mais moderna de carregar o .env no ESM
 
-// Carrega as variáveis do arquivo .env para o process.env
-dotenv.config();
+// Opcional: Validar se a variável existe para evitar erros silenciosos
+if (!process.env.DATABASE_URL) {
+  throw new Error('A variável de ambiente DATABASE_URL não foi definida no arquivo .env');
+}
 
 export default defineConfig({
   datasource: {
-    // Agora garantimos que esta string não estará vazia
     url: process.env.DATABASE_URL,
   },
 });
