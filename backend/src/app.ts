@@ -4,6 +4,7 @@ import 'express-async-errors';
 import cors from 'cors';
 import { AppError } from './errors/AppError.js';
 import { routes } from './routes.js';
+import z from 'zod';
 
 const app = express();
 
@@ -21,6 +22,15 @@ app.use(routes);
 
 // 4. Middleware Global de Erros (Deve ser SEMPRE o último)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  // O TypeScript agora reconhece que 'err' é um ZodError aqui dentro
+  if (err instanceof z.ZodError) {
+    return res.status(400).json({
+      status: 'validation_error',
+      message: 'Dados inválidos.',
+      errors: err.format(), // Agora o TS reconhece o .format()
+    });
+  }
+
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       status: 'error',
