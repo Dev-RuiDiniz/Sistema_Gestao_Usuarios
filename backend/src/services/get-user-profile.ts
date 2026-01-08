@@ -1,6 +1,10 @@
-import { type UsersRepository } from '../repositories/users-repository.js'
 import { type User } from '@prisma/client'
 import { ResourceNotFoundError } from './errors/resource-not-found-error.js'
+
+// 1. Importamos a INTERFACE como tipo (para o constructor) 
+// 2. Importamos a CLASSE como valor (para o new na Factory)
+// Fazemos isso em uma única linha para evitar duplicidade
+import { type UsersRepository, PrismaUsersRepository } from '../repositories/users-repository.js'
 
 interface GetUserProfileServiceRequest {
   userId: string
@@ -27,9 +31,8 @@ export class GetUserProfileService {
 }
 
 // Factory para o serviço
-import { PrismaUsersRepository } from '../repositories/prisma/prisma-users-repository.js'
-
 export function makeGetUserProfileService() {
+  // Agora o TS sabe que PrismaUsersRepository é uma classe instanciável
   const usersRepository = new PrismaUsersRepository()
   const useCase = new GetUserProfileService(usersRepository)
 

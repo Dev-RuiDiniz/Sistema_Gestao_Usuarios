@@ -6,6 +6,11 @@ import { randomUUID } from 'node:crypto'
 export class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
 
+  async findManyPaginated(page: number) {
+  return this.items
+    .slice((page - 1) * 20, page * 20);
+  }
+  
   async findById(id: string) {
     const user = this.items.find((item) => item.id === id)
     return user || null
