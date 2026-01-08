@@ -2,7 +2,7 @@
 import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import { AppError } from './errors/AppError.js';
-import { routes } from './routes.js';
+import { Routes } from './routes.js';
 import z from 'zod';
 import cookieParser from 'cookie-parser'
 
@@ -19,7 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 // 3. Definição das Rotas da API
-app.use(routes);
+app.use(Routes);
 
 // 4. Middleware Global de Erros (Deve ser SEMPRE o último)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
