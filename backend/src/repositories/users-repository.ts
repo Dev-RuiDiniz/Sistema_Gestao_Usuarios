@@ -1,16 +1,19 @@
-import { Prisma, type User } from '@prisma/client';
+import { Prisma, type User, type Role } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 
 // 1. A Interface (O Contrato)
+// Define o que qualquer repositório de usuário deve ser capaz de fazer
 export interface UsersRepository {
   create(data: Prisma.UserCreateInput): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findById(id: string): Promise<User | null>;
-  findManyPaginated(page: number): Promise<User[]>; // Interface exige este método
+  findManyPaginated(page: number): Promise<User[]>;
+  updateRole(id: string, role: Role): Promise<User>; // Adicionado para Task 02
 }
 
-// 2. A Classe (A Implementação)
+// 2. A Classe (A Implementação Real com Prisma)
 export class PrismaUsersRepository implements UsersRepository {
+  
   async create(data: Prisma.UserCreateInput) {
     const user = await prisma.user.create({
       data,
@@ -32,16 +35,24 @@ export class PrismaUsersRepository implements UsersRepository {
     return user;
   }
 
-  // ADICIONE ESTE MÉTODO PARA RESOLVER O ERRO:
   async findManyPaginated(page: number) {
     const users = await prisma.user.findMany({
-      take: 20,              // Quantidade por página
-      skip: (page - 1) * 20,  // Lógica de pulo de registros
+      take: 20,              // Limita a 20 resultados
+      skip: (page - 1) * 20,  // Pula os registros baseados na página
       orderBy: {
-        createdAt: 'desc',   // Ordenar pelos mais recentes
+        createdAt: 'desc',   // Garante que os novos usuários apareçam primeiro
       },
     });
 
     return users;
+  }
+
+  async updateRole(id: string, role: Role) {
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+    });
+
+    return user;
   }
 }
