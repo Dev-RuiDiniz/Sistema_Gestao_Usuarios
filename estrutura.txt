@@ -1,26 +1,45 @@
 SISTEMA_GESTAO_USUARIOS/
 │
 └── backend/
-    ├── node_modules/          # Dependências instaladas (gerado pelo npm)
     ├── prisma/
-    │   ├── migrations/        # Histórico de alterações do banco de dados
-    │   └── schema.prisma      # Definição das tabelas e conexão do banco
+    │   ├── migrations/             # Histórico de alterações do banco de dados
+    │   └── schema.prisma           # Definição do banco e tabelas (Users)
     ├── src/
-    │   ├── config/            # Configurações de variáveis e ambiente
-    │   ├── controllers/       # Lógica de recebimento de requisições (HTTP)
-    │   ├── entities/          # Modelos de dados/classes da aplicação
+    │   ├── config/
+    │   │   └── env.ts              # Configurações globais (alternativo ao env/index.ts)
+    │   ├── controllers/            # Handlers HTTP (Recebem req, enviam res)
+    │   │   ├── authenticate-controller.ts
+    │   │   └── register-controller.ts
+    │   ├── entities/               # Classes ou tipos representando o domínio
+    │   ├── env/
+    │   │   └── index.ts            # Loader e validação Zod das variáveis de ambiente
+    │   ├── errors/
+    │   │   └── AppError.ts         # Classe global de erros da aplicação
     │   ├── lib/
-    │   │   └── prisma.ts      # Instância única do Prisma Client
-    │   ├── repositories/      # Camada de acesso a dados (abstração do banco)
-    │   ├── services/          # Regras de negócio da aplicação
-    │   ├── app.ts             # Configuração do Express (middlewares e rotas)
-    │   └── server.ts          # Inicialização do servidor (ponto de entrada)
-    ├── .env                   # Variáveis sensíveis (DATABASE_URL, senhas)
-    ├── .gitignore             # Arquivos ignorados pelo Git
-    ├── package-lock.json      # Versões exatas das dependências
-    ├── package.json           # Scripts e manifesto do projeto (ESM)
-    ├── prisma.config.ts       # Configuração programática do Prisma
-    ├── tsconfig.json          # Configuração do TypeScript (NodeNext)
-    ├── docker-compose.yml     # Orquestração do PostgreSQL (Docker)
-    ├── estrutura.txt          # Este guia da estrutura do projeto
-    └── README.md              # Documentação principal do projeto
+    │   │   └── prisma.ts           # Cliente do Prisma instanciado
+    │   ├── repositories/           # Abstração da comunicação com o banco
+    │   │   ├── in-memory/          # Repositórios mockados para testes unitários
+    │   │   │   └── in-memory-users-repository.ts
+    │   │   └── prisma/             # Implementações reais com Prisma
+    │   │       └── prisma-users-repository.ts
+    │   ├── schemas/                # Schemas de validação Zod centralizados
+    │   │   └── user-schemas.ts
+    │   ├── services/               # Regras de Negócio (Use Cases)
+    │   │   ├── errors/             # Erros específicos de negócio (InvalidCredentials, etc)
+    │   │   ├── authenticate.spec.ts
+    │   │   ├── authenticate.ts
+    │   │   ├── register.spec.ts
+    │   │   └── register.ts
+    │   ├── utils/
+    │   │   └── hash-password.ts    # Funções auxiliares (ex: bcrypt wrapper)
+    │   ├── app.spec.ts             # Testes e2e ou de integração do app
+    │   ├── app.ts                  # Configuração do Express e Middlewares
+    │   ├── routes.ts               # Definição de todas as rotas da API
+    │   └── server.ts               # Ponto de entrada (Port listening)
+    ├── .env                        # Variáveis de ambiente locais
+    ├── .gitignore
+    ├── docker-compose.yml          # Container do PostgreSQL
+    ├── package.json                # Scripts e dependências
+    ├── prisma.config.ts
+    ├── tsconfig.json               # Configuração do compilador TS (Paths Aliases)
+    └── vitest.config.ts            # Configuração do framework de testes
