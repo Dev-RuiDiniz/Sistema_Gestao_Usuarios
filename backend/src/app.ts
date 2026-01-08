@@ -4,9 +4,11 @@ import cors from 'cors';
 import { AppError } from './errors/AppError.js';
 import { routes } from './routes.js';
 import z from 'zod';
+import cookieParser from 'cookie-parser'
 
 const app = express();
 
+app.use(cookieParser())
 // 1. Middlewares de Configuração (Devem vir ANTES das rotas)
 app.use(cors());
 app.use(express.json()); // Essencial para ler o corpo da requisição POST

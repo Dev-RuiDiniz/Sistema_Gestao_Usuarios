@@ -2,6 +2,7 @@ import { compare } from 'bcryptjs'
 import { type UsersRepository } from '../repositories/users-repository.js'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error.js'
 import { type User } from '@prisma/client'
+import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository.js'
 
 interface AuthenticateServiceRequest {
   email: string
@@ -39,7 +40,11 @@ export class AuthenticateService {
 }
 
 // FACTORY: Responsável por instanciar o service com suas dependências
-export function makeAuthenticateService(usersRepository: UsersRepository) {
+export function makeAuthenticateService() {
+  // A própria factory cria a instância do repositório
+  const usersRepository = new PrismaUsersRepository() 
+  
+  // E a injeta no serviço
   const authenticateService = new AuthenticateService(usersRepository)
 
   return authenticateService
