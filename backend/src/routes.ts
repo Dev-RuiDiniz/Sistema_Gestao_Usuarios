@@ -5,6 +5,7 @@ import { verifyJwt } from './middlewares/verify-jwt.js'
 import { profile } from './controllers/profile-controller.js'
 import { updateUserRole } from './controllers/update-user-role-controller.js'
 import { verifyUserRole } from './middlewares/verify-user-role.js'
+import { deleteUser } from './controllers/delete-user-controller.js'
 
 const Routes = Router()
 
@@ -17,6 +18,12 @@ Routes.patch('/users/:userId/role',
   verifyJwt, 
   verifyUserRole('ADMIN'), 
   updateUserRole
+)
+
+Routes.delete('/users/:userId', 
+  verifyJwt, 
+  verifyUserRole('ADMIN'), 
+  deleteUser
 )
 
 // Privadas
