@@ -1,29 +1,38 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  // A URL foi removida daqui pois agora reside no prisma.config.ts
 }
 
-// 1. Definição do Enum para Controle de Acesso (RBAC)
 enum Role {
   ADMIN
   USER
 }
 
-// 2. Modelo de Usuário
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
   password_hash String
   role          Role     @default(USER)
-  
-  // Timestamps para auditoria
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  @@map("users") // Define o nome da tabela como 'users' no banco de dados (snake_case)
+  logs Log[]
+
+  @@map("users")
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  action    String   
+  details   String?  
+  timestamp DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@map("logs")
 }
