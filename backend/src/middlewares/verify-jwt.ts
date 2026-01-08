@@ -20,11 +20,12 @@ export async function verifyJwt(req: Request, res: Response, next: NextFunction)
 
   try {
     // 3. Valida o token usando a chave secreta
-    const { sub } = jwt.verify(token, env.JWT_SECRET) as JwtPayload
+    const { sub, role } = jwt.verify(token, env.JWT_SECRET) as JwtPayload
 
     // 4. Anexa o ID do usuário à requisição (para uso nos controllers)
     req.user = {
       id: sub,
+      role: role as 'ADMIN' | 'MEMBER',
     }
 
     return next() // Segue para o próximo controller/middleware
