@@ -1,14 +1,16 @@
 import { Router } from 'express'
-import { verifyJwt } from './middlewares/verify-jwt.js'
 import { authenticate } from './controllers/authenticate-controller.js'
+import { logout } from './controllers/logout-controller.js' // Novo import
+import { verifyJwt } from './middlewares/verify-jwt.js'
 import { profile } from './controllers/profile-controller.js'
 
 const Routes = Router()
 
-// Pública
+// Públicas
 Routes.post('/sessions', authenticate)
+Routes.post('/logout', logout) // Rota de Logout
 
-// Privada
+// Privadas
 Routes.get('/me', verifyJwt, profile)
 
 export { Routes }
