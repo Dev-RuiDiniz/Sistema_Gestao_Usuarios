@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { authenticate } from './controllers/authenticate-controller.js'
 import { logout } from './controllers/logout-controller.js'
 import { profile } from './controllers/profile-controller.js'
-import { fetchUsers } from './controllers/fetch-users-controller.js' // Adicionado
+import { fetchUsers } from './controllers/fetch-users-controller.js'
 import { updateUserRole } from './controllers/update-user-role-controller.js'
 import { deleteUser } from './controllers/delete-user-controller.js'
 import { verifyJwt } from './middlewares/verify-jwt.js'
