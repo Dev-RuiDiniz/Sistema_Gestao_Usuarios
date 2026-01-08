@@ -1,4 +1,4 @@
-import { PrismaLogsRepository } from '../../repositories/logs-repository.js'
+import { PrismaLogsRepository } from '@/repositories/prisma/prisma-logs-repository.js'
 import { CreateLogService } from '../create-log.js'
 
 export function makeCreateLogService() {
