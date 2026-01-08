@@ -1,38 +1,37 @@
 import { ResourceNotFoundError } from './errors/resource-not-found-error.js'
-import { type UsersRepository, PrismaUsersRepository } from '../repositories/users-repository.js'
-import { type User, type Role } from '@prisma/client'
+import { type UsersRepository } from '../repositories/users-repository.js'
+import { type LogsRepository } from '../repositories/logs-repository.js'
+import { Role } from '@prisma/client'
 
-interface UpdateUserRoleServiceRequest {
+interface UpdateUserRoleRequest {
   userId: string
+  adminId: string
   role: Role
 }
 
-interface UpdateUserRoleServiceResponse {
-  user: User
-}
-
 export class UpdateUserRoleService {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    private usersRepository: UsersRepository,
+    private logsRepository: LogsRepository
+  ) {}
 
-  async execute({
-    userId,
-    role,
-  }: UpdateUserRoleServiceRequest): Promise<UpdateUserRoleServiceResponse> {
+  async execute({ userId, adminId, role }: UpdateUserRoleRequest) {
     const user = await this.usersRepository.findById(userId)
 
     if (!user) {
       throw new ResourceNotFoundError()
     }
 
-    // Atualizamos o usuário através do repositório
+    const oldRole = user.role
     const updatedUser = await this.usersRepository.updateRole(userId, role)
+
+    // Registro da Auditoria
+    await this.logsRepository.create({
+      userId: adminId,
+      action: 'ROLE_UPDATED',
+      details: `Alterou cargo de ${user.email} de ${oldRole} para ${role}`,
+    })
 
     return { user: updatedUser }
   }
-}
-
-// Factory
-export function makeUpdateUserRoleService() {
-  const usersRepository = new PrismaUsersRepository()
-  return new UpdateUserRoleService(usersRepository)
 }

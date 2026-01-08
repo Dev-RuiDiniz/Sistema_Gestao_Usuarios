@@ -1,14 +1,19 @@
 import { ResourceNotFoundError } from './errors/resource-not-found-error.js'
-import { type UsersRepository, PrismaUsersRepository } from '../repositories/users-repository.js'
+import { type UsersRepository } from '../repositories/users-repository.js'
+import { type LogsRepository } from '../repositories/logs-repository.js'
 
 interface DeleteUserServiceRequest {
-  userId: string
+  userId: string      // Usuário que será deletado
+  adminId: string     // Administrador que está deletando (para o log)
 }
 
 export class DeleteUserService {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    private usersRepository: UsersRepository,
+    private logsRepository: LogsRepository // Injeção do repositório de logs
+  ) {}
 
-  async execute({ userId }: DeleteUserServiceRequest): Promise<void> {
+  async execute({ userId, adminId }: DeleteUserServiceRequest): Promise<void> {
     const user = await this.usersRepository.findById(userId)
 
     if (!user) {
@@ -16,11 +21,12 @@ export class DeleteUserService {
     }
 
     await this.usersRepository.delete(userId)
-  }
-}
 
-// Factory
-export function makeDeleteUserService() {
-  const usersRepository = new PrismaUsersRepository()
-  return new DeleteUserService(usersRepository)
+    // Registro da Auditoria
+    await this.logsRepository.create({
+      userId: adminId,
+      action: 'USER_DELETED',
+      details: `Removeu permanentemente o usuário: ${user.email} (ID: ${userId})`,
+    })
+  }
 }

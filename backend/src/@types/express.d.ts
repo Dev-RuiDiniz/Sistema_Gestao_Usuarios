@@ -1,9 +1,12 @@
-// src/@types/express.d.ts
-declare namespace Express {
-  export interface Request {
-    user: {
-      id: string
-      role: 'ADMIN' | 'MEMBER'
+export {}
+
+declare global {
+  namespace Express {
+    export interface Request {
+      user: {
+        sub: string             // Mudamos 'id' para 'sub'
+        role: 'ADMIN' | 'USER'  // Mudamos 'MEMBER' para 'USER'
+      }
     }
   }
 }

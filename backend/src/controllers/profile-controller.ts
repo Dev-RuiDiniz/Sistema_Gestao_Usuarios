@@ -6,7 +6,7 @@ export async function profile(req: Request, res: Response) {
     const getUserProfile = makeGetUserProfileService()
 
     const { user } = await getUserProfile.execute({
-      userId: req.user.id,
+      userId: req.user.sub, // Alterado de .id para .sub
     })
 
     // Retornamos os dados exceto a senha
