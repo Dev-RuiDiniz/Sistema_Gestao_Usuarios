@@ -1,10 +1,10 @@
-// src/http/controllers/authenticate-controller.ts
 import { type Request, type Response } from 'express'
 import { z } from 'zod'
 import jwt from 'jsonwebtoken'
-import { env } from '@/env' // Seu loader de variáveis de ambiente
-import { makeAuthenticateService } from '@/services/factories/make-authenticate-service.js'
+import { env } from '@/env/index' 
+import { makeAuthenticateService } from '@/services/authenticate.js' 
 import { InvalidCredentialsError } from '@/services/errors/invalid-credentials-error.js'
+import { PrismaUsersRepository } from '@/repositories/users-repository.js'
 
 export async function authenticate(req: Request, res: Response) {
   const authenticateBodySchema = z.object({
@@ -12,29 +12,32 @@ export async function authenticate(req: Request, res: Response) {
     password_hash: z.string().min(6),
   })
 
+  // Validação dos dados de entrada
   const { email, password_hash } = authenticateBodySchema.parse(req.body)
 
   try {
-    // Usamos uma factory para instanciar o service com suas dependências
-    const authenticateService = makeAuthenticateService()
+    // Instancia o serviço através da factory
+    const usersRepository = new PrismaUsersRepository()
+    const authenticateService = makeAuthenticateService(usersRepository)
 
     const { user } = await authenticateService.execute({
       email,
       password_hash,
     })
 
-    // GERAÇÃO DO ACCESS TOKEN
+    // GERAÇÃO DO ACCESS TOKEN (JWT)
     const token = jwt.sign(
       { 
-        role: user.role // Payload: dados para o front-end
+        role: user.role 
       }, 
       env.JWT_SECRET, 
       {
-        subject: user.id,   // O "sub" (ID do usuário)
-        expiresIn: '15m',   // Vida curta por segurança
+        subject: user.id,   // ID único do usuário (sub)
+        expiresIn: '15m',   // Tempo de expiração curto para segurança
       }
     )
 
+    // Retorna o token para o cliente (Frontend/Insomnia)
     return res.status(200).send({
       token,
     })
@@ -44,6 +47,7 @@ export async function authenticate(req: Request, res: Response) {
       return res.status(400).send({ message: err.message })
     }
 
-    throw err // Deixa o middleware global tratar erros inesperados
+    // Middleware global de erros capturará outros tipos de erro (como Zod)
+    throw err 
   }
 }

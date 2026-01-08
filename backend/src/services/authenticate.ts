@@ -1,4 +1,3 @@
-// src/services/authenticate.ts
 import { compare } from 'bcryptjs'
 import { type UsersRepository } from '../repositories/users-repository.js'
 import { InvalidCredentialsError } from './errors/invalid-credentials-error.js'
@@ -37,4 +36,11 @@ export class AuthenticateService {
     // 3. Retornar usuário em caso de sucesso
     return { user }
   }
+}
+
+// FACTORY: Responsável por instanciar o service com suas dependências
+export function makeAuthenticateService(usersRepository: UsersRepository) {
+  const authenticateService = new AuthenticateService(usersRepository)
+
+  return authenticateService
 }
