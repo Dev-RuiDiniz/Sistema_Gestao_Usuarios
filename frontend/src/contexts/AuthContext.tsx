@@ -1,20 +1,18 @@
-import { createContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, type ReactNode, useEffect, useState } from 'react';
 import { api } from '../api/api';
 
-// Definição do tipo do usuário
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: string;
 }
 
-// Definição dos dados que o contexto vai exportar
 interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  signIn: (credentials: { email: string; password: string }) => Promise<void>;
+  signIn: (credentials: any) => Promise<void>;
   signOut: () => void;
 }
 
@@ -26,38 +24,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!user;
 
-  // 1. Efeito para carregar dados do LocalStorage ao iniciar a aplicação
   useEffect(() => {
     const token = localStorage.getItem('@SistemaUsuarios:token');
-    const storagedUser = localStorage.getItem('@SistemaUsuarios:user');
+    const userData = localStorage.getItem('@SistemaUsuarios:user');
 
-    if (token && storagedUser) {
-      // Injeta o token na instância do Axios caso o app seja reiniciado
+    if (token && userData) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(JSON.parse(storagedUser));
+      setUser(JSON.parse(userData));
     }
-    
     setIsLoading(false);
   }, []);
 
-  // 2. Função de Login
   async function signIn({ email, password }: any) {
-    try {
-      const response = await api.post('/sessions', { email, password });
-      const { token, user: userData } = response.data;
+    const response = await api.post('/login', { email, password });
+    const { token, user: userResponse } = response.data;
 
-      localStorage.setItem('@SistemaUsuarios:token', token);
-      localStorage.setItem('@SistemaUsuarios:user', JSON.stringify(userData));
+    localStorage.setItem('@SistemaUsuarios:token', token);
+    localStorage.setItem('@SistemaUsuarios:user', JSON.stringify(userResponse));
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(userData);
-    } catch (error) {
-      console.error("Erro no login:", error);
-      throw error; // Repassa o erro para ser tratado no componente (ex: mostrar alerta)
-    }
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setUser(userResponse);
   }
 
-  // 3. Função de Logout
   function signOut() {
     localStorage.removeItem('@SistemaUsuarios:token');
     localStorage.removeItem('@SistemaUsuarios:user');
@@ -65,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, signIn, signOut, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
