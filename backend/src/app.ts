@@ -5,16 +5,25 @@ import { Routes } from './routes.js';
 import z from 'zod';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
-import swaggerFile from './swagger.json'; // Certifique-se que o caminho está correto
+import swaggerFile from './swagger.json';
 
 const app = express();
 
-// 1. Middlewares de Configuração
+// 1. Configuração de Middlewares
 app.use(cookieParser());
-app.use(cors());
+
+// CONFIGURAÇÃO DO CORS: 
+// Permitir apenas o domínio do frontend e o uso de cookies/headers de autorização
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true, // Necessário para o envio de cookies (Refresh Token)
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// 2. Documentação Swagger (Recomendado vir antes das rotas da API)
+// 2. Documentação Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // 3. Rota de Health Check
