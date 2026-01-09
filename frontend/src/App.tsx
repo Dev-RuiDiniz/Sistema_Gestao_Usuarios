@@ -11,6 +11,8 @@ export default function App() {
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/" element={<div>Tela de Login</div>} />
+            <Route path="/login" element={<Login />} /> {/* Faremos o Login na Task 03 */}
+            <Route path="/register" element={<Register />} />
           </Route>
 
           <Route element={<DashboardLayout />}>
