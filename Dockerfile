@@ -15,5 +15,7 @@ COPY --from=build /app/package*.json ./
 COPY --from=build /app/prisma ./prisma
 
 EXPOSE 3333
-# O comando inicia aplicando migrações e depois sobe o servidor
-CMD npx prisma migrate deploy && npm start
+
+# Usando o formato JSON (Exec Form) chamando o shell explicitamente 
+# para suportar o operador '&&' com segurança
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
