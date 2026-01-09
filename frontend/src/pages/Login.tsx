@@ -1,78 +1,85 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { toast } from 'sonner';
-
-const loginSchema = z.object({
-  email: z.string().email('E-mail inválido'),
-  password: z.string().min(6, 'Senha deve ter 6+ caracteres'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Link removido para evitar erro de variável não lida
 
 export function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { signIn } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook para mudar de página
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema)
-  });
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault(); // Impede o refresh da página
+    
+    if (!email || !password) return;
 
-  async function handleLogin(data: LoginFormData) {
     try {
-      await signIn(data);
-      toast.success('Login realizado!', { description: 'Seja bem-vindo ao painel.' });
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast.error('Erro de acesso', { description: 'Verifique suas credenciais.' });
+      setIsSubmitting(true);
+      
+      // 1. Faz o login no backend
+      await signIn({ 
+        email: email.trim(), 
+        password: password 
+      });
+
+      // 2. SE CHEGOU AQUI, O LOGIN FOI SUCESSO!
+      // Forçamos a ida para o dashboard
+      navigate('/dashboard', { replace: true });
+      
+    } catch (error) {
+      // Erro já tratado no Context (Toast)
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto space-y-6">
-      <div className="text-center lg:text-left">
-        <h2 className="text-3xl font-bold text-surface-900">Login</h2>
-        <p className="text-surface-600 mt-2">Acesse sua conta administrativa.</p>
+    <div className="w-full max-w-md space-y-8">
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600 text-white shadow-lg mb-4">
+          <LogIn size={32} />
+        </div>
+        <h2 className="text-3xl font-extrabold text-surface-900 tracking-tight">Login</h2>
+        <p className="mt-2 text-surface-600">Acesse sua conta para gerenciar usuários.</p>
       </div>
 
-      <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-surface-900 mb-1">E-mail</label>
-          <input 
-            {...register('email')}
-            type="email"
-            className="w-full px-4 py-2 rounded-lg border border-surface-200 focus:ring-2 focus:ring-brand-500 outline-hidden transition-all"
-            placeholder="seu@email.com"
-          />
-          {errors.email && <span className="text-red-500 text-xs">{errors.email.message}</span>}
+      <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <div className="space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-3 top-3.5 text-surface-400" size={20} />
+            <input
+              type="email"
+              required
+              className="block w-full pl-10 pr-4 py-3 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+              placeholder="Seu e-mail"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3.5 text-surface-400" size={20} />
+            <input
+              type="password"
+              required
+              className="block w-full pl-10 pr-4 py-3 border border-surface-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none transition-all"
+              placeholder="Sua senha"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-surface-900 mb-1">Senha</label>
-          <input 
-            {...register('password')}
-            type="password"
-            className="w-full px-4 py-2 rounded-lg border border-surface-200 focus:ring-2 focus:ring-brand-500 outline-hidden transition-all"
-            placeholder="••••••"
-          />
-          {errors.password && <span className="text-red-500 text-xs">{errors.password.message}</span>}
-        </div>
-
-        <button 
+        <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center py-3 px-4 rounded-xl text-white bg-brand-600 hover:bg-brand-700 font-bold transition-all shadow-lg disabled:opacity-70"
         >
-          {isSubmitting ? 'Entrando...' : 'Entrar'}
+          {isSubmitting ? <Loader2 className="animate-spin mr-2" size={20} /> : 'Entrar no sistema'}
         </button>
       </form>
-
-      <p className="text-center text-sm text-surface-600">
-        Não tem conta? <Link to="/register" className="text-brand-600 font-semibold hover:underline">Cadastre-se</Link>
-      </p>
     </div>
   );
 }

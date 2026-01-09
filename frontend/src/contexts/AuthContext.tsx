@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useEffect, useState } from 'react';
 import { api } from '../api/api';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -25,30 +26,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const token = localStorage.getItem('@SistemaUsuarios:token');
-    const userData = localStorage.getItem('@SistemaUsuarios:user');
+    async function loadStorageData() {
+      const token = localStorage.getItem('@SistemaUsuarios:token');
+      const userData = localStorage.getItem('@SistemaUsuarios:user');
 
-    if (token && userData) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(JSON.parse(userData));
+      if (token && userData) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          setUser(JSON.parse(userData));
+        } catch {
+          signOut();
+        }
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    loadStorageData();
   }, []);
 
   async function signIn({ email, password }: any) {
-    const response = await api.post('/login', { email, password });
-    const { token, user: userResponse } = response.data;
+    try {
+      const response = await api.post('/sessions', { 
+        email, 
+        password_hash: password 
+      });
+      
+      const { token, user: userResponse } = response.data;
 
-    localStorage.setItem('@SistemaUsuarios:token', token);
-    localStorage.setItem('@SistemaUsuarios:user', JSON.stringify(userResponse));
+      localStorage.setItem('@SistemaUsuarios:token', token);
+      localStorage.setItem('@SistemaUsuarios:user', JSON.stringify(userResponse));
 
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(userResponse);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(userResponse);
+      
+      toast.success('Login realizado com sucesso!');
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Erro ao realizar login.';
+      toast.error(message);
+      throw error; 
+    }
   }
 
   function signOut() {
     localStorage.removeItem('@SistemaUsuarios:token');
     localStorage.removeItem('@SistemaUsuarios:user');
+    delete api.defaults.headers.common['Authorization'];
     setUser(null);
   }
 
