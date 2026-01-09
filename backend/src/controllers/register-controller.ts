@@ -1,22 +1,20 @@
-// src/controllers/register-controller.ts
 import { type Request, type Response } from 'express';
 import { registerBodySchema } from '../schemas/user-schemas.js';
-import { RegisterService } from '../services/register.js';
-import { PrismaUsersRepository } from '../repositories/prisma/prisma-users-repository.js';
+import { makeRegisterService } from '../services/factories/make-register-service.js';
 
-export class RegisterController {
-  async handle(req: Request, res: Response) {
-    // Validação rigorosa com Zod
-    const { email, password_hash } = registerBodySchema.parse(req.body);
+export async function register(req: Request, res: Response) {
+  // 1. Validação com Zod
+  const { email, password_hash } = registerBodySchema.parse(req.body);
 
-    const usersRepository = new PrismaUsersRepository();
-    const registerService = new RegisterService(usersRepository);
+  // 2. Uso da Factory para obter o serviço com as dependências injetadas
+  const registerService = makeRegisterService();
 
-    await registerService.execute({
-      email,
-      password_hash,
-    });
+  // 3. Execução da regra de negócio
+  await registerService.execute({
+    email,
+    password_hash,
+  });
 
-    return res.status(201).send();
-  }
+  // 4. Resposta de sucesso
+  return res.status(201).send();
 }

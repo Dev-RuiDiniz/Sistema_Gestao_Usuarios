@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { register } from './controllers/register-controller.js'
 import { authenticate } from './controllers/authenticate-controller.js'
 import { logout } from './controllers/logout-controller.js'
 import { profile } from './controllers/profile-controller.js'
@@ -13,6 +14,7 @@ const Routes = Router()
 /**
  * 🔓 Rotas Públicas
  */
+Routes.post('/users', register) // Rota adicionada para criação de usuário
 Routes.post('/sessions', authenticate)
 Routes.post('/logout', logout)
 
