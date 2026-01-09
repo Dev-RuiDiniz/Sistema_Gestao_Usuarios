@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AuthLayout } from './components/layouts/AuthLayout';
 import { DashboardLayout } from './components/layouts/DashboardLayout';
-import { ProtectedRoute } from './components/ProtectedRoute'; // Importe aqui
+import { ProtectedRoute } from './components/layouts/ProtectedRoute';
 
 import { Register } from './pages/Register';
 import { Login } from './pages/Login';
